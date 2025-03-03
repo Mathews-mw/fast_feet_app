@@ -92,7 +92,7 @@ class OrderItem extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).pushNamed(
                       AppRoutes.orderDetails,
-                      arguments: order,
+                      arguments: order.id,
                     );
                   },
                 )

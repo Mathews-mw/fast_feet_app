@@ -7,6 +7,6 @@ class ApiExceptions implements Exception {
 
   @override
   String toString() {
-    return 'AuthExceptions: $code - $message';
+    return 'ApiExceptions: $code - $message';
   }
 }

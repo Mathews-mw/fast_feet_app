@@ -13,8 +13,6 @@ class HttpService {
   Future<dynamic> get(String endpoint) async {
     final token = await AuthService().getToken();
 
-    print('stored token: $token');
-
     try {
       final response = await http.get(
         Uri.parse("$_baseUrl/$endpoint"),
@@ -98,7 +96,7 @@ class HttpService {
     }
   }
 
-  Future<int> multiPartRequest(String endpoint, File file) async {
+  Future<dynamic> multiPartRequest(String endpoint, File file) async {
     final token = await AuthService().getToken();
 
     try {
@@ -119,15 +117,10 @@ class HttpService {
 
       request.headers.addAll({"Authorization": 'Bearer $token'});
 
-      final response = await request.send();
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-      if (response.statusCode == 200) {
-        print('Upload realizado com sucesso!');
-      } else {
-        print('Erro no upload: ${response.statusCode}');
-      }
-
-      return response.statusCode;
+      return _handleResponse(response);
     } catch (error) {
       print('multipart error: $error');
       rethrow;

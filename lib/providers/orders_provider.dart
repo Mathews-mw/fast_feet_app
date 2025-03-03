@@ -54,6 +54,19 @@ class OrdersProvider with ChangeNotifier {
     _userOrders = orders;
   }
 
+  Future<Order> getOrderById(String orderId) async {
+    try {
+      final response = await _httpService.get('orders/$orderId/details');
+
+      final order = Order.fromJson(response);
+
+      return order;
+    } catch (error) {
+      print('Error while try to fetch order: $error');
+      rethrow;
+    }
+  }
+
   List<Order> _mapperHttpToObject(List<Map<String, dynamic>> data) {
     final orders = data.map((item) {
       final recipient = Recipient(

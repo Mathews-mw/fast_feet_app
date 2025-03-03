@@ -90,4 +90,23 @@ class Recipient {
   set longitude(double longitude) {
     this.longitude = longitude;
   }
+
+  factory Recipient.fromJson(Map<String, dynamic> json) {
+    return Recipient(
+      id: json['id'],
+      name: json['name'],
+      email: json['email'],
+      phone: json['phone'],
+      cpf: json['cpf'],
+      cep: json['cep'],
+      street: json['street'],
+      number: json['number'],
+      complement: json['complement'],
+      district: json['district'],
+      city: json['city'],
+      state: json['state'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+    );
+  }
 }

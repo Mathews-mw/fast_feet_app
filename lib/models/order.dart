@@ -53,6 +53,27 @@ class Order {
     this.statusUpdatedAt = statusUpdatedAt;
   }
 
+  factory Order.fromJson(Map<String, dynamic> json) {
+    return Order(
+      id: json['id'],
+      recipientId: json['recipient_id'],
+      ownerId: json['owner_id'],
+      status: json['status'],
+      statusText: json['status_text'],
+      postedAt: DateTime.parse(json['posted_at']),
+      withdrawalAt: json['withdrawal_at'] != null
+          ? DateTime.parse(json['withdrawal_at'])
+          : null,
+      deliveryAt: json['delivery_at'] != null
+          ? DateTime.parse(json['delivery_at'])
+          : null,
+      statusUpdatedAt: json['status_updated_at'] != null
+          ? DateTime.parse(json['status_updated_at'])
+          : null,
+      recipient: Recipient.fromJson(json['recipient']),
+    );
+  }
+
   @override
   String toString() {
     return 'Order(id: $id, recipientId: $recipientId, ownerId: $ownerId, status: $status, postedAt: $postedAt, withdrawalAt: $withdrawalAt, deliveryAt: $deliveryAt, statusUpdatedAt: $statusUpdatedAt)';

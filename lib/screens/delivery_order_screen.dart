@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:fast_feet_app/@exceptions/api_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -6,6 +7,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:fast_feet_app/theme/app_colors.dart';
 import 'package:fast_feet_app/services/http_service.dart';
 import 'package:fast_feet_app/components/loading_overlay.dart';
+import 'package:fast_feet_app/services/coordinates_service.dart';
 import 'package:fast_feet_app/components/success_order_delivered_overlay.dart';
 
 class DeliveryOrderScreen extends StatefulWidget {
@@ -32,39 +34,80 @@ class _DeliveryOrderScreenState extends State<DeliveryOrderScreen> {
     });
   }
 
-  Future<void> handleCompleteOrder() async {
+  Future<void> handleCompleteOrder(String orderId) async {
     setState(() => _isSuccessDelivered = false);
     setState(() => _isLoading = true);
 
     final httpService = HttpService();
+    final coordinatesService = CoordinatesService();
 
     if (_pickedImage == null) return;
 
-    final response = await httpService.multiPartRequest(
-      'orders/cc5abfbe-b200-4d71-9ffc-be0ea9e73a32/delivered?lat=-3.0582755168191174&long=-60.011960427593905',
-      _pickedImage!,
-    );
+    final currentUserLocation = await coordinatesService.getCurrentPosition();
 
-    if (response != 200) {
+    if (currentUserLocation.error != '') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Ocorreu um erro ao tentar fazer o upload da imagem.',
+            currentUserLocation.error,
           ),
         ),
       );
 
       setState(() => _isLoading = false);
       setState(() => _isSuccessDelivered = false);
+
       return;
     }
 
-    setState(() => _isLoading = false);
-    setState(() => _isSuccessDelivered = true);
+    try {
+      final response = await httpService.multiPartRequest(
+        'orders/$orderId/delivered?lat=${currentUserLocation.lat}&long=${currentUserLocation.long}',
+        _pickedImage!,
+      );
+
+      print('response: $response');
+
+      setState(() => _isLoading = false);
+      setState(() => _isSuccessDelivered = true);
+    } on ApiExceptions catch (error) {
+      setState(() => _isLoading = false);
+      setState(() => _isSuccessDelivered = false);
+
+      await _errorMessageAlert(
+        'Ocorreu um erro ao tentar finalizar entrega',
+        error.message,
+      );
+    } catch (error) {
+      print('Erro inesperado ao tentar finalizar entrega: $error');
+
+      await _errorMessageAlert(
+        'Ocorreu um erro ao tentar finalizar entrega',
+        'Aconteceu um error inesperado ao tentar finalizar sua entrega. Por favor, tente novamente.',
+      );
+    }
+  }
+
+  Future<void> _errorMessageAlert(String title, String message) async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Ok'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final String orderId = ModalRoute.of(context)!.settings.arguments as String;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -129,7 +172,7 @@ class _DeliveryOrderScreenState extends State<DeliveryOrderScreen> {
                 ElevatedButton(
                   child: const Text('Enviar foto'),
                   onPressed: () async {
-                    await handleCompleteOrder();
+                    await handleCompleteOrder(orderId);
                   },
                 ),
               ],
