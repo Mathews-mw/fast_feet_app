@@ -1,10 +1,16 @@
-import 'package:fast_feet_app/screens/completed_orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import 'package:fast_feet_app/app_routes.dart';
 import 'package:fast_feet_app/theme/app_colors.dart';
+import 'package:fast_feet_app/services/auth_service.dart';
+import 'package:fast_feet_app/providers/user_provider.dart';
 import 'package:fast_feet_app/screens/pending_orders_screen.dart';
 import 'package:fast_feet_app/screens/available_orders_screen.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:fast_feet_app/screens/completed_orders_screen.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.purple,
@@ -36,7 +44,19 @@ class _HomeScreenState extends State<HomeScreen> {
               PhosphorIcons.signOut(),
               color: Colors.white,
             ),
-            onPressed: () {},
+            onPressed: () async {
+              final authService = AuthService();
+
+              await userProvider.logout();
+              await authService.removeToken();
+
+              if (mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  AppRoutes.login,
+                  (route) => false,
+                );
+              }
+            },
           )
         ],
         bottom: PreferredSize(
@@ -46,21 +66,32 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Bem vindo,',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    const Text(
-                      'Mathews Araújo',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                Skeletonizer(
+                  enabled: !userProvider.isAuthenticated,
+                  ignoreContainers: true,
+                  effect: ShimmerEffect(
+                    baseColor: Colors.black54,
+                    highlightColor: AppColors.textBase,
+                    duration: Duration(milliseconds: 1000),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bem vindo,',
+                        style: TextStyle(color: Colors.white),
                       ),
-                    )
-                  ],
+                      Text(
+                        userProvider.user != null
+                            ? userProvider.user!.name
+                            : '',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 Row(
                   children: [

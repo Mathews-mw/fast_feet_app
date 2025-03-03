@@ -1,11 +1,18 @@
-import 'package:fast_feet_app/screens/order_details_screen.dart';
-import 'package:fast_feet_app/theme/app_colors.dart';
+import 'package:fast_feet_app/app_routes.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
+import 'package:fast_feet_app/models/order.dart';
+import 'package:fast_feet_app/@types/order_status.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:fast_feet_app/screens/order_details_screen.dart';
+
 class OrderItem extends StatelessWidget {
-  const OrderItem({super.key});
+  final Order order;
+
+  const OrderItem({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -14,27 +21,28 @@ class OrderItem extends StatelessWidget {
       color: Colors.white,
       surfaceTintColor: Colors.white,
       child: Column(
-        // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Icon(
+                  PhosphorIconsFill.package,
+                  size: 32,
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      PhosphorIconsFill.package,
-                      size: 32,
-                    ),
-                    const SizedBox(width: 10),
                     Text(
-                      'Pacote 06',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      order.id,
+                      style:
+                          GoogleFonts.robotoMono(fontWeight: FontWeight.bold),
                     ),
+                    Text(DateFormat('dd/MM/yyyy').format(order.postedAt)),
                   ],
                 ),
-                Text('25/02/2025'),
               ],
             ),
           ),
@@ -43,7 +51,7 @@ class OrderItem extends StatelessWidget {
             child: Container(
               constraints: const BoxConstraints(maxHeight: 70),
               child: Row(
-                children: const [
+                children: [
                   Expanded(
                     child: CustomTimeLineTitle(
                       isFirst: true,
@@ -56,7 +64,7 @@ class OrderItem extends StatelessWidget {
                     child: CustomTimeLineTitle(
                       isFirst: false,
                       isLast: false,
-                      isPast: true,
+                      isPast: order.withdrawalAt != null,
                       status: 'RETIRADO',
                     ),
                   ),
@@ -64,7 +72,7 @@ class OrderItem extends StatelessWidget {
                     child: CustomTimeLineTitle(
                       isFirst: false,
                       isLast: true,
-                      isPast: false,
+                      isPast: order.status == OrderStatus.entregue.value,
                       status: 'ENTREGUE',
                     ),
                   ),
@@ -82,10 +90,9 @@ class OrderItem extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.arrow_right_alt_rounded),
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (ctx) {
-                        return OrderDetailsScreen();
-                      }),
+                    Navigator.of(context).pushNamed(
+                      AppRoutes.orderDetails,
+                      arguments: order,
                     );
                   },
                 )

@@ -43,4 +43,15 @@ final ThemeData lightModeTheme = ThemeData(
       statusBarIconBrightness: Brightness.light,
     ),
   ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.yellow,
+      foregroundColor: AppColors.titles,
+      textStyle: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+    ),
+  ),
 );
