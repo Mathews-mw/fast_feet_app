@@ -64,16 +64,20 @@ class HttpService {
 
   Future<dynamic> patch(String endpoint, [Map<String, dynamic>? data]) async {
     final token = await AuthService().getToken();
+    final test = true;
 
     try {
-      final response = await http.patch(
-        Uri.parse("$_baseUrl/$endpoint"),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": 'Bearer $token'
-        },
-        body: data != null ? jsonEncode(data) : null,
-      );
+      final request = http.Request('PATCH', Uri.parse("$_baseUrl/$endpoint"));
+
+      request.headers.addAll({"Authorization": 'Bearer $token'});
+
+      if (data != null) {
+        request.headers.addAll({"Content-Type": 'application/json'});
+        request.body = jsonEncode(data);
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       return _handleResponse(response);
     } catch (error) {

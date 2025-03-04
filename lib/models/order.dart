@@ -1,10 +1,11 @@
+import 'package:fast_feet_app/@types/order_status.dart';
 import 'package:fast_feet_app/models/recipient.dart';
 
 class Order {
   final String id;
   final String recipientId;
   final String? ownerId;
-  final String status;
+  final OrderStatus status;
   final String statusText;
   final DateTime postedAt;
   final DateTime? withdrawalAt;
@@ -33,7 +34,7 @@ class Order {
     this.ownerId = ownerId;
   }
 
-  set status(String status) {
+  set status(OrderStatus status) {
     this.status = status;
   }
 
@@ -58,7 +59,9 @@ class Order {
       id: json['id'],
       recipientId: json['recipient_id'],
       ownerId: json['owner_id'],
-      status: json['status'],
+      status: OrderStatus.values.firstWhere(
+          (status) => status.value == json['status'],
+          orElse: () => OrderStatus.postado),
       statusText: json['status_text'],
       postedAt: DateTime.parse(json['posted_at']),
       withdrawalAt: json['withdrawal_at'] != null

@@ -1,3 +1,4 @@
+import 'package:fast_feet_app/services/coordinates_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fast_feet_app/models/order.dart';
 import 'package:fast_feet_app/models/recipient.dart';
@@ -9,6 +10,7 @@ class OrdersProvider with ChangeNotifier {
 
   List<Order> _items = [];
   List<Order> _userOrders = [];
+  List<Order> _nearbyUserOrders = [];
 
   int get itemsAmount {
     return _items.length;
@@ -18,16 +20,30 @@ class OrdersProvider with ChangeNotifier {
     return [..._items];
   }
 
+  List<Order> get nearbyUserOrders {
+    return [..._nearbyUserOrders];
+  }
+
   List<Order> get userOrders {
     return [..._userOrders];
   }
 
-  Future<void> loadOrders({OrderStatus? status}) async {
+  Future<void> loadOrders({
+    OrderStatus? status,
+    String? search,
+  }) async {
     // await Future.delayed(Duration(seconds: 2));
     print('Loading all orders...');
 
+    print('search: $search');
+
+    final queryParameters =
+        search != null ? '${status?.value}&search=$search' : '${status?.value}';
+
     final ordersResponse =
-        await _httpService.get("orders?status=${status?.value}");
+        await _httpService.get("orders?status=$queryParameters");
+
+    print('ordersResponse: $ordersResponse');
 
     final List<Map<String, dynamic>> ordersList =
         (ordersResponse['orders'] as List)
@@ -35,7 +51,35 @@ class OrdersProvider with ChangeNotifier {
             .toList();
 
     final orders = _mapperHttpToObject(ordersList);
+
     _items = orders;
+
+    // notifyListeners();
+  }
+
+  Future<void> loadNearbyUserOrders({
+    OrderStatus? status,
+    String? search,
+  }) async {
+    print('Loading nearby user orders...');
+
+    final coordinatesService = CoordinatesService();
+
+    final currentUserLocation = await coordinatesService.getCurrentPosition();
+
+    final ordersResponse = await _httpService.get(
+        "orders/user/nearby?status=${status?.value}&lat=${currentUserLocation.lat}&long=${currentUserLocation.long}&search=$search");
+
+    final List<Map<String, dynamic>> ordersList =
+        (ordersResponse['orders'] as List)
+            .map((item) => item as Map<String, dynamic>)
+            .toList();
+
+    final orders = _mapperHttpToObject(ordersList);
+
+    _nearbyUserOrders = orders;
+
+    // notifyListeners();
   }
 
   Future<void> loadUserOrders({OrderStatus? status}) async {
@@ -52,6 +96,8 @@ class OrdersProvider with ChangeNotifier {
     final orders = _mapperHttpToObject(ordersList);
 
     _userOrders = orders;
+
+    // notifyListeners();
   }
 
   Future<Order> getOrderById(String orderId) async {
@@ -63,6 +109,19 @@ class OrdersProvider with ChangeNotifier {
       return order;
     } catch (error) {
       print('Error while try to fetch order: $error');
+      rethrow;
+    }
+  }
+
+  Future<void> pickupOrder(String orderId) async {
+    print('pickup order was called!');
+    try {
+      final response = await _httpService.patch('orders/$orderId/pickup');
+      print('response: $response');
+
+      notifyListeners();
+    } catch (error) {
+      print('Error while try to pickup an order: $error');
       rethrow;
     }
   }
@@ -90,7 +149,9 @@ class OrdersProvider with ChangeNotifier {
         id: item['id'],
         recipientId: item['recipient_id'],
         ownerId: item['owner_id'],
-        status: item['status'],
+        status: OrderStatus.values.firstWhere(
+            (status) => status.value == item['status'],
+            orElse: () => OrderStatus.postado),
         statusText: item['status_text'],
         postedAt: DateTime.parse(item['posted_at']),
         withdrawalAt: item['withdrawal_at'] != null

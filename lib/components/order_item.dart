@@ -1,4 +1,5 @@
 import 'package:fast_feet_app/app_routes.dart';
+import 'package:fast_feet_app/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -72,7 +73,7 @@ class OrderItem extends StatelessWidget {
                     child: CustomTimeLineTitle(
                       isFirst: false,
                       isLast: true,
-                      isPast: order.status == OrderStatus.entregue.value,
+                      isPast: order.status == OrderStatus.entregue,
                       status: 'ENTREGUE',
                     ),
                   ),
@@ -82,7 +83,7 @@ class OrderItem extends StatelessWidget {
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-            color: Colors.yellow.shade200,
+            color: AppColors.lightYellow,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

@@ -11,7 +11,9 @@ class CustomTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final String? hintText;
   final TextInputAction? textInputAction;
+  final void Function(String)? onChanged;
   final void Function(String?)? onSaved;
+  final void Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
   final bool? enabled;
 
@@ -25,7 +27,9 @@ class CustomTextField extends StatelessWidget {
     this.suffixIcon,
     this.hintText,
     this.textInputAction,
+    this.onChanged,
     this.onSaved,
+    this.onFieldSubmitted,
     this.validator,
     this.enabled = true,
   });
@@ -35,53 +39,64 @@ class CustomTextField extends StatelessWidget {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
-    return TextFormField(
-      enabled: enabled,
-      controller: controller,
-      textInputAction: textInputAction,
-      onSaved: onSaved,
-      validator: validator,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      obscuringCharacter: obscuringCharacter,
-      style: GoogleFonts.inter(
-        fontSize: 14,
-        color: AppColors.textBase,
-      ),
-      decoration: InputDecoration(
-        contentPadding: const EdgeInsets.only(
-          top: 10,
-          left: 20,
-        ),
-        constraints: BoxConstraints(
-          maxHeight: height * 0.065,
-          // maxWidth: width * 0.065,
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        hintText: hintText,
-        hintStyle: GoogleFonts.inter(
+    return Material(
+      shadowColor: Colors.black45,
+      elevation: 5,
+      borderRadius: BorderRadius.circular(8),
+      child: TextFormField(
+        enabled: enabled,
+        controller: controller,
+        textInputAction: textInputAction,
+        onSaved: onSaved,
+        onChanged: onChanged,
+        onFieldSubmitted: onFieldSubmitted,
+        validator: validator,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        obscuringCharacter: obscuringCharacter,
+        style: GoogleFonts.inter(
           fontSize: 14,
-          color: AppColors.textLight,
+          color: AppColors.textBase,
         ),
-        errorStyle: GoogleFonts.inter(
-          fontSize: 12,
-          color: Colors.redAccent,
-        ),
-        prefixIcon: prefixIcon,
-        suffixIcon: suffixIcon,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: Colors.white,
-            width: 2,
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.only(
+            top: 10,
+            left: 20,
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: AppColors.yellow,
-            width: 2,
+          constraints: BoxConstraints(
+            maxHeight: height * 0.065,
+            // maxWidth: width * 0.065,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          hintText: hintText,
+          hintStyle: GoogleFonts.inter(
+            fontSize: 14,
+            color: AppColors.textLight,
+          ),
+          errorStyle: GoogleFonts.inter(
+            fontSize: 12,
+            color: Colors.redAccent,
+          ),
+          prefixIcon: prefixIcon,
+          suffixIcon: suffixIcon,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.white, width: 1),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: Colors.white,
+              width: 1,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: AppColors.yellow,
+              width: 1,
+            ),
           ),
         ),
       ),

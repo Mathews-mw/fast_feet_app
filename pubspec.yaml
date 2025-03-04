@@ -78,6 +78,7 @@ flutter:
     - assets/images/foreground.png
     - assets/images/packages.png
     - assets/images/package_delivered.png
+    - assets/images/recebido.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

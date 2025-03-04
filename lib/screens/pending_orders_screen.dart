@@ -24,13 +24,18 @@ class _PendingOrdersScreenState extends State<PendingOrdersScreen> {
       backgroundColor: AppColors.background,
       extendBody: true,
       body: RefreshIndicator(
+        color: AppColors.purple,
         onRefresh: () => _refreshOrders(context),
         child: FutureBuilder(
           future: Provider.of<OrdersProvider>(context)
               .loadUserOrders(status: OrderStatus.rotaEntrega),
           builder: (ctx, snapshot) => snapshot.connectionState ==
                   ConnectionState.waiting
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.purple,
+                  ),
+                )
               : Consumer<OrdersProvider>(
                   child: const Center(
                     child: Text('Não há encomendas para mostrar'),
@@ -41,13 +46,46 @@ class _PendingOrdersScreenState extends State<PendingOrdersScreen> {
                     }
 
                     return Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: ListView.separated(
-                        itemCount: ordersProvider.userOrders.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 10),
-                        itemBuilder: (ctx, i) {
-                          return OrderItem(order: ordersProvider.userOrders[i]);
-                        },
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  endIndent: 15,
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              Text(
+                                '${ordersProvider.userOrders.length} entregas',
+                                style: TextStyle(color: AppColors.textLight),
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  indent: 15,
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Expanded(
+                            child: ListView.separated(
+                              itemCount: ordersProvider.userOrders.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (ctx, i) {
+                                return OrderItem(
+                                    order: ordersProvider.userOrders[i]);
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   }),
