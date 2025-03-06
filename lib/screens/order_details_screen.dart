@@ -123,7 +123,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             children: [
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -186,6 +186,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                       ),
                                       if (_order!.recipient.complement != null)
                                         Text(_order!.recipient.complement!),
+                                      Text(_order!.recipient.district!),
                                       Text(
                                         '${_order!.recipient.city}, ${_order!.recipient.state}',
                                       ),

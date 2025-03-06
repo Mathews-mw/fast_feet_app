@@ -13,4 +13,6 @@ class AppColors {
   static const Color textBase = Color(0xff6f6c7f);
   static const Color textLight = Color(0xff6f6c7f);
   static const Color textAccent = Color(0xffd4ccff);
+
+  static const Color lines = Color(0xffdad7e0);
 }

@@ -1,4 +1,5 @@
 import 'package:fast_feet_app/@types/order_status.dart';
+import 'package:fast_feet_app/components/app_drawer/app_drawer.dart';
 import 'package:fast_feet_app/components/custom_text_field.dart';
 import 'package:fast_feet_app/components/order_item.dart';
 import 'package:fast_feet_app/providers/orders_provider.dart';
@@ -7,27 +8,25 @@ import 'package:fast_feet_app/theme/app_colors.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 
-class AvailableOrdersScreen extends StatefulWidget {
-  const AvailableOrdersScreen({super.key});
+class OrdersScreen extends StatefulWidget {
+  const OrdersScreen({super.key});
 
   @override
-  State<AvailableOrdersScreen> createState() => _AvailableOrdersScreenState();
+  State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
-class _AvailableOrdersScreenState extends State<AvailableOrdersScreen> {
+class _OrdersScreenState extends State<OrdersScreen> {
   TextEditingController _searchController = TextEditingController();
   bool _isDirtyField = false;
 
   Future<void> _refreshOrders(BuildContext context) {
-    return Provider.of<OrdersProvider>(context, listen: false)
-        .loadOrders(status: OrderStatus.disponivelRetirada);
+    return Provider.of<OrdersProvider>(context, listen: false).loadOrders();
   }
 
   Future<void> filterOrders() async {
     if (_searchController.text.isEmpty) return;
 
     await Provider.of<OrdersProvider>(context, listen: false).loadOrders(
-      status: OrderStatus.disponivelRetirada,
       search: _searchController.text,
     );
   }
@@ -44,8 +43,7 @@ class _AvailableOrdersScreenState extends State<AvailableOrdersScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<OrdersProvider>(context, listen: false)
-          .loadOrders(status: OrderStatus.disponivelRetirada);
+      Provider.of<OrdersProvider>(context, listen: false).loadOrders();
     });
 
     _searchController.addListener(_handleDirtyField);
@@ -72,6 +70,15 @@ class _AvailableOrdersScreenState extends State<AvailableOrdersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.purple,
+        iconTheme: IconThemeData(color: Colors.white),
+        title: const Text(
+          'Pedidos',
+          style: TextStyle(fontSize: 28, color: Colors.white),
+        ),
+      ),
+      drawer: AppDrawer(),
       body: RefreshIndicator(
         color: AppColors.purple,
         onRefresh: () => _refreshOrders(context),

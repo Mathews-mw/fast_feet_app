@@ -1,3 +1,4 @@
+import 'package:fast_feet_app/components/app_drawer/app_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -114,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      drawer: const AppDrawer(),
       body: SafeArea(
         child: <Widget>[
           AvailableOrdersScreen(),

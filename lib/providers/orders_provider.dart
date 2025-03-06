@@ -11,6 +11,9 @@ class OrdersProvider with ChangeNotifier {
   List<Order> _items = [];
   List<Order> _userOrders = [];
   List<Order> _nearbyUserOrders = [];
+  bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
 
   int get itemsAmount {
     return _items.length;
@@ -33,28 +36,38 @@ class OrdersProvider with ChangeNotifier {
     String? search,
   }) async {
     // await Future.delayed(Duration(seconds: 2));
+    _isLoading = true;
+    notifyListeners();
+
     print('Loading all orders...');
 
-    print('search: $search');
+    try {
+      String uri = 'orders?';
 
-    final queryParameters =
-        search != null ? '${status?.value}&search=$search' : '${status?.value}';
+      if (status != null) {
+        uri = '${uri}status=${status.value}&';
+      }
 
-    final ordersResponse =
-        await _httpService.get("orders?status=$queryParameters");
+      if (search != null) {
+        uri = '${uri}search=$search';
+      }
 
-    print('ordersResponse: $ordersResponse');
+      final ordersResponse = await _httpService.get(uri);
 
-    final List<Map<String, dynamic>> ordersList =
-        (ordersResponse['orders'] as List)
-            .map((item) => item as Map<String, dynamic>)
-            .toList();
+      final List<Map<String, dynamic>> ordersList =
+          (ordersResponse['orders'] as List)
+              .map((item) => item as Map<String, dynamic>)
+              .toList();
 
-    final orders = _mapperHttpToObject(ordersList);
+      final orders = _mapperHttpToObject(ordersList);
 
-    _items = orders;
-
-    // notifyListeners();
+      _items = orders;
+    } catch (err) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> loadNearbyUserOrders({
@@ -78,8 +91,6 @@ class OrdersProvider with ChangeNotifier {
     final orders = _mapperHttpToObject(ordersList);
 
     _nearbyUserOrders = orders;
-
-    // notifyListeners();
   }
 
   Future<void> loadUserOrders({OrderStatus? status}) async {
@@ -96,8 +107,6 @@ class OrdersProvider with ChangeNotifier {
     final orders = _mapperHttpToObject(ordersList);
 
     _userOrders = orders;
-
-    // notifyListeners();
   }
 
   Future<Order> getOrderById(String orderId) async {

@@ -1,3 +1,4 @@
+import 'package:fast_feet_app/providers/recipients_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProvider(create: (_) => RecipientsProvider()),
       ],
       child: MaterialApp(
         title: 'Fast Feet',
